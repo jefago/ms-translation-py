@@ -22,9 +22,10 @@ def translate(api_key, from_lang, text_to_translate):
 
     # Dictionary of translations to return
     retval = {}
-
+    sys.stderr.write("Translating")
     # Iterate over all languages to translate
     for to_lang in LANGUAGES:
+        sys.stderr.write(".")
 
         # Include original copy if this is the language we are translating from
         if to_lang == from_lang:
@@ -39,6 +40,7 @@ def translate(api_key, from_lang, text_to_translate):
         # Add translation to dictionary that we will return
         retval[to_lang] = translation
 
+    sys.stderr.write("done\n")
     # Return the dictionariy of translations
     return retval
 
