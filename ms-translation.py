@@ -32,12 +32,23 @@ def translate(api_key, from_lang, text_to_translate):
         if to_lang == from_lang:
             translation = text_to_translate
         else:
-            # MS Translation API request
-            uri_to_call = TRANSLATE_URI.format(text_to_translate, from_lang, to_lang)
-            response = requests.get(uri_to_call, headers=headers)
+            
+            # Translate line by line because otherwise the translation API messes up line breaks
+            lines = text_to_translate.split("\n")
+            translated_lines = []
+            for line_to_translate in lines:
+                # MS Translation API request
+                line_to_translate = line_to_translate.rstrip()
+                if (len(line_to_translate) > 0):
+                    uri_to_call = TRANSLATE_URI.format(line_to_translate, from_lang, to_lang)
+                    response = requests.get(uri_to_call, headers=headers)
 
-            translation_xml_tree = ElementTree.fromstring(response.text.encode('utf-8'))
-            translation = translation_xml_tree.text
+                    translation_xml_tree = ElementTree.fromstring(response.text.encode('utf-8'))
+                    translated_lines.append(translation_xml_tree.text)
+                else:
+                    translated_lines.append("")
+
+            translation = '\n'.join(translated_lines)
         # Add translation to dictionary that we will return
         retval[to_lang] = translation
 
