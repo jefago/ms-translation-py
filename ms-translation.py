@@ -8,7 +8,7 @@ import requests
 
 TRANSLATE_URI = "http://api.microsofttranslator.com/v2/Http.svc/Translate?text={}&from={}&to={}"
 LANGUAGES = [
-    #"en-US", 
+    "en-US", 
     "de-DE"
     # "ar", "de-DE", "en-AU", "en-CA", "en-GB", "es-419", "es-ES", "es-US", "fr-CA", "fr-FR",
     # "hr", "it-IT", "ja-JP", "ko-KR", "nl-NL", "pl-PL", "pt-BR", "pt-PT", "ru-RU", "sr", "zh-CN"
@@ -21,20 +21,16 @@ def translate(api_key, from_lang, text_to_translate):
     }
 
     for to_lang in LANGUAGES:
-        uri_to_call = TRANSLATE_URI.format(text_to_translate, "en-us", to_lang)
-        response = requests.get(uri_to_call, headers=headers)
+        if to_lang == from_lang:
+            translation = text_to_translate
+        else:
+            uri_to_call = TRANSLATE_URI.format(text_to_translate, from_lang, to_lang)
+            response = requests.get(uri_to_call, headers=headers)
 
-        print response.text
+            translation_xml_tree = ElementTree.fromstring(response.text.encode('utf-8'))
+            translation = translation_xml_tree.text
 
-        translation_xml_tree = ElementTree.fromstring(response.text.encode('utf-8'))
-
-        print to_lang
-        print translation_xml_tree.text
-
-        print u"{}: {}".format(to_lang, translation_xml_tree.text)
-
-
-
+        print u"<{0}>\n{1}\n</{0}>\n".format(to_lang, translation)
 
 if __name__ == "__main__":
     API_KEY = os.environ.get('MS_TRANSLATION_API_KEY')
