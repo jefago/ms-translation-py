@@ -2,6 +2,7 @@
 
 import os
 import sys
+import codecs
 from xml.etree import ElementTree
 
 import requests
@@ -63,5 +64,9 @@ if __name__ == "__main__":
 
     translations = translate(API_KEY, "en-us", input_string)
 
+    sys.stdout = codecs.getwriter('utf8')(sys.stdout)
+
     for lang in translations:
-        print u"<{0}>\n{1}\n</{0}>\n".format(lang, translations[lang])
+        sys.stdout.write(
+            u"<{0}>\n{1}\n</{0}>\n".format(lang, translations[lang])
+        )
