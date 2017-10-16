@@ -102,3 +102,6 @@ ENV/
 
 # Shell scripts
 *.sh
+
+# Plain text files (input / output)
+*.txt
