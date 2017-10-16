@@ -8,7 +8,7 @@ import requests
 
 TRANSLATE_URI = "http://api.microsofttranslator.com/v2/Http.svc/Translate?text={}&from={}&to={}"
 LANGUAGES = [
-    "en-US", 
+    "en-US",
     "ar", "de-DE", "en-AU", "en-CA", "en-GB", "es-419", "es-ES", "es-US", "fr-CA", "fr-FR",
     "hr", "it-IT", "ja-JP", "ko-KR", "nl-NL", "pl-PL", "pt-BR", "pt-PT", "ru-RU", "sr", "zh-CN"
 ]
@@ -44,6 +44,7 @@ def translate(api_key, from_lang, text_to_translate):
     # Return the dictionariy of translations
     return retval
 
+# Main script
 if __name__ == "__main__":
     API_KEY = os.environ.get('MS_TRANSLATION_API_KEY')
 
@@ -54,11 +55,13 @@ if __name__ == "__main__":
     arg_list = list(sys.argv)
     del arg_list[0]
 
-    if len(arg_list) < 1:
-        print "Syntax: {} [text to translate]".format(sys.argv[0])
-        exit(2)
+    if len(arg_list) >= 1:
+        input_string = ' '.join(arg_list)
+    else:
+        sys.stderr.write("No text to translate given as command line parameter, reading from stdin\n")
+        input_string = sys.stdin.read()
 
-    translations = translate(API_KEY, "en-us", ' '.join(arg_list))
+    translations = translate(API_KEY, "en-us", input_string)
 
     for lang in translations:
         print u"<{0}>\n{1}\n</{0}>\n".format(lang, translations[lang])
