@@ -3,11 +3,12 @@
 import os
 import sys
 import codecs
+import urllib
 from xml.etree import ElementTree
 
 import requests
 
-TRANSLATE_URI = "http://api.microsofttranslator.com/v2/Http.svc/Translate?text={}&from={}&to={}"
+TRANSLATE_URI = "http://api.microsofttranslator.com/v2/Http.svc/Translate?{}"
 LANGUAGES = [
     "en-US",
     "ar", "de-DE", "en-AU", "en-CA", "en-GB", "es-419", "es-ES", "es-US", "fr-CA", "fr-FR",
@@ -28,25 +29,26 @@ def translate(api_key, from_lang, text_to_translate):
     for to_lang in LANGUAGES:
         sys.stderr.write(".")
 
-        # Include original copy if this is the language we are translating from
-        if to_lang == from_lang:
-            translation = text_to_translate
-        else:
-            
-            # Translate line by line because otherwise the translation API messes up line breaks
-            lines = text_to_translate.split("\n")
-            translated_lines = []
-            for line_to_translate in lines:
-                # MS Translation API request
-                line_to_translate = line_to_translate.rstrip()
-                if (len(line_to_translate) > 0):
-                    uri_to_call = TRANSLATE_URI.format(line_to_translate, from_lang, to_lang)
-                    response = requests.get(uri_to_call, headers=headers)
+        # Translate line by line because otherwise the translation API messes up line breaks
+        lines = text_to_translate.split("\n")
+        translated_lines = []
+        for line_to_translate in lines:
+            # MS Translation API request
+            line_to_translate = line_to_translate.rstrip()
+            if (len(line_to_translate) > 0):
 
-                    translation_xml_tree = ElementTree.fromstring(response.text.encode('utf-8'))
-                    translated_lines.append(translation_xml_tree.text)
-                else:
-                    translated_lines.append("")
+                uri_to_call = TRANSLATE_URI.format(urllib.urlencode({
+                    'text' : line_to_translate,
+                    'from' : from_lang,
+                    'to' : to_lang
+                }))
+
+                response = requests.get(uri_to_call, headers=headers)
+
+                translation_xml_tree = ElementTree.fromstring(response.text.encode('utf-8'))
+                translated_lines.append(translation_xml_tree.text)
+            else:
+                translated_lines.append("")
 
             translation = '\n'.join(translated_lines)
         # Add translation to dictionary that we will return
